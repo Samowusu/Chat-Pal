@@ -11,8 +11,11 @@ function RecordMessage({ onStop }: RecordMessageProps) {
       onStop={onStop}
       render={({ status, startRecording, stopRecording }) => (
         <div className="mt-2">
+          <p className="text-white font-light">
+            {status === "idle" ? "Hold to record" : status}
+          </p>
           <button
-            className="bg-white p-4 rounded-full"
+            className="bg-blue-600 p-4 rounded-full mt-2"
             onMouseDown={startRecording}
             onMouseUp={stopRecording}
           >
@@ -24,7 +27,6 @@ function RecordMessage({ onStop }: RecordMessageProps) {
               }
             />
           </button>
-          <p className="mt-2 text-white font-light">{status}</p>
         </div>
       )}
     />

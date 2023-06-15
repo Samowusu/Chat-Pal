@@ -5,10 +5,10 @@ function RecordIcon({ classText }: RecordIconProps) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      fill="none"
+      fill="#ffffff"
       viewBox="0 0 24 24"
       strokeWidth={1.5}
-      stroke="currentColor"
+      stroke="#ffffff"
       className={"w-12 h-12 " + classText}
     >
       <path

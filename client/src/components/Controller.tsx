@@ -8,6 +8,7 @@ import {
   MessagesType,
 } from "../config/utils";
 import RecordMessage from "./RecordMessage";
+import AudioPlayer from "./AudioPlayer";
 
 function Controller() {
   const [isLoadingState, setIsLoadingState] = useState(false);
@@ -22,48 +23,46 @@ function Controller() {
   //bloburl gives you the url to the binary data(audio in this case)
   // so there is the need to fetch the actual audio and post it to the backend
   const handleStopRecording = async (blobUrl: string) => {
-    console.log({ blobUrl });
+    try {
+      setIsLoadingState(true);
+      const myMessage = { sender: "me", blobUrl };
+      const updatedMessages = [...messagesState, myMessage];
+      setMessagesState(updatedMessages);
 
-    setIsLoadingState(true);
-    const myMessage = { sender: "me", blobUrl };
-    const messagesArray = [...messagesState, myMessage];
-    setMessagesState(messagesArray);
+      const response = await fetch(blobUrl);
+      const blob = await response.blob();
+      console.log("send blob to backend", blob);
 
-    fetch(blobUrl)
-      .then((res) => res.blob())
-      .then(async (blob) => {
-        console.log("send blob to backend", blob);
+      const formData = new FormData();
+      formData.append("file", blob, "myFile.wav");
 
-        const formData = new FormData();
-        formData.append("file", blob, "myFile.wav");
+      console.log("posting data...", formData);
 
-        console.log("posting data...", formData);
-
-        await axios
-          .post(`${BASE_URL}/post-audio`, formData, {
-            headers: { "Content-Type": "audio/mpeg" },
-            responseType: "arraybuffer",
-          })
-          .then((res) => {
-            console.log("audio posted successfully", res);
-
-            const blob = res.data;
-            const audio = new Audio();
-            audio.src = handleCreateBlobUrl(blob);
-            console.log("audio", audio.src);
-
-            const botMessage = { sender: BOT_NAME, blobUrl: audio.src };
-            messagesArray.push(botMessage);
-            setMessagesState(messagesArray);
-
-            setIsLoadingState(false);
-            audio.play();
-          })
-          .catch((err) => {
-            console.log(err);
-            setIsLoadingState(false);
-          });
+      const res = await axios.post(`${BASE_URL}/post-audio`, formData, {
+        headers: { "Content-Type": "audio/mpeg" },
+        responseType: "arraybuffer",
       });
+
+      console.log("audio posted successfully", res);
+      const audioBlob = res.data;
+
+      const audioUrl = handleCreateBlobUrl(audioBlob);
+      console.log("audio", audioUrl);
+
+      const botMessage = { sender: BOT_NAME, blobUrl: audioUrl };
+      const updatedWithBotMessage = [...updatedMessages, botMessage];
+      setMessagesState(updatedWithBotMessage);
+
+      setIsLoadingState(false);
+
+      const audio = new Audio();
+      audio.src = audioUrl;
+      audio.play();
+    } catch (error) {
+      console.log(error);
+      setIsLoadingState(false);
+      // Handle error (e.g., display error message to the user)
+    }
   };
 
   return (
@@ -90,12 +89,7 @@ function Controller() {
                   {audio.sender}
                 </p>
 
-                <audio
-                  src={audio.blobUrl}
-                  className="appearance-none"
-                  controls
-                  preload="auto"
-                />
+                <AudioPlayer file={audio.blobUrl} />
               </div>
             </div>
           ))}
