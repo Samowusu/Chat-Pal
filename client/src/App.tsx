@@ -1,11 +1,12 @@
 import Controller from "./components/Controller";
-import Landing from "./components/Landing";
+import FrostedGlass from "./components/FrostedGlass";
 
 function App() {
   return (
-    <div className="flex justify-between w-full">
-      <Landing />
-      <Controller />
+    <div className="background-container">
+      <FrostedGlass>
+        <Controller />
+      </FrostedGlass>
     </div>
   );
 }

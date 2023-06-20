@@ -17,13 +17,53 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: gray;
+  background-color: #050b0b;
 }
 
-::-webkit-scrollbar-track:hover {
+/* ::-webkit-scrollbar-track:hover {
   background-color: black;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: red;
+} */
+
+.background-container {
+  background-image: Url("/background.jpeg");
+  background-repeat: round;
+  width: 100vw;
+  height: 100vh;
+  background-size: contain;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.frosted-glass {
+  width: clamp(540px, 50%, 768px);
+  height: 90%;
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.divider {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.18);
+  width: 80%;
+  margin: 0 10%;
+  padding: 10px 0;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 1600px) {
+  .background-container {
+    background-size: cover;
+  }
 }

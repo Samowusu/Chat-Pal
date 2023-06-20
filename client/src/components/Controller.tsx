@@ -8,6 +8,7 @@ import {
   MessagesType,
 } from "../config/utils";
 import RecordMessage from "./RecordMessage";
+import AudioPlayer from "./AudioPlayer";
 
 function Controller() {
   const [isLoadingState, setIsLoadingState] = useState(false);
@@ -22,52 +23,46 @@ function Controller() {
   //bloburl gives you the url to the binary data(audio in this case)
   // so there is the need to fetch the actual audio and post it to the backend
   const handleStopRecording = async (blobUrl: string) => {
-    console.log({ blobUrl });
+    try {
+      setIsLoadingState(true);
+      const myMessage = { sender: "me", blobUrl };
+      const updatedMessages = [...messagesState, myMessage];
+      setMessagesState(updatedMessages);
 
-    setIsLoadingState(true);
-    const myMessage = { sender: "me", blobUrl };
-    const messagesArray = [...messagesState, myMessage];
-    setMessagesState(messagesArray);
+      const response = await fetch(blobUrl);
+      const blob = await response.blob();
 
-    fetch(blobUrl)
-      .then((res) => res.blob())
-      .then(async (blob) => {
-        console.log("send blob to backend", blob);
+      const formData = new FormData();
+      formData.append("file", blob, "myFile.wav");
 
-        const formData = new FormData();
-        formData.append("file", blob, "myFile.wav");
-
-        console.log("posting data...", formData);
-
-        await axios
-          .post(`${BASE_URL}/post-audio`, formData, {
-            headers: { "Content-Type": "audio/mpeg" },
-            responseType: "arraybuffer",
-          })
-          .then((res) => {
-            console.log("audio posted successfully", res);
-
-            const blob = res.data;
-            const audio = new Audio();
-            audio.src = handleCreateBlobUrl(blob);
-            console.log("audio", audio.src);
-
-            const botMessage = { sender: BOT_NAME, blobUrl: audio.src };
-            messagesArray.push(botMessage);
-            setMessagesState(messagesArray);
-
-            setIsLoadingState(false);
-            audio.play();
-          })
-          .catch((err) => {
-            console.log(err);
-            setIsLoadingState(false);
-          });
+      const res = await axios.post(`${BASE_URL}/post-audio`, formData, {
+        headers: { "Content-Type": "audio/mpeg" },
+        responseType: "arraybuffer",
       });
+
+      const audioBlob = res.data;
+
+      const audioUrl = handleCreateBlobUrl(audioBlob);
+
+      const botMessage = { sender: BOT_NAME, blobUrl: audioUrl };
+      const updatedWithBotMessage = [...updatedMessages, botMessage];
+      setMessagesState(updatedWithBotMessage);
+
+      setIsLoadingState(false);
+
+      const audio = new Audio();
+      audio.src = audioUrl;
+      audio.play();
+    } catch (error: any) {
+      console.log(error);
+      alert(error.message);
+      setIsLoadingState(false);
+      // Handle error (e.g., display error message to the user)
+    }
   };
 
   return (
-    <div className="h-screen overflow-y-hidden w-full max-w-lg border-green-500 border">
+    <div className="h-full overflow-y-hidden w-full max-w-lg ">
       <Header setMessages={setMessagesState} />
       <div className="flex flex-col justify-between h-full overflow-y-auto pb-96">
         <div className="mt-5 px-5">
@@ -90,29 +85,27 @@ function Controller() {
                   {audio.sender}
                 </p>
 
-                <audio
-                  src={audio.blobUrl}
-                  className="appearance-none"
-                  controls
-                  preload="auto"
-                />
+                <AudioPlayer file={audio.blobUrl} />
               </div>
             </div>
           ))}
 
           {messagesState.length === 0 && !isLoadingState && (
-            <div className="text-center font-light italic mt-10">
+            <div className="text-center text-white font-light italic mt-10">
               Send {BOT_NAME} a message...
             </div>
           )}
           {isLoadingState && (
-            <div className="text-center font-light italic mt-10 animate-pulse">
+            <div className="text-center text-white font-light italic mt-10 animate-pulse">
               Gimme a few seconds...
             </div>
           )}
         </div>
         {/* Recorder */}
-        <div className="fixed bottom-0 w-full max-w-lg py-6 border-t text-center bg-gradient-to-r from-sky-500 to-green-500">
+        <div
+          className="fixed z-10 bottom-0 w-full max-w-lg py-6 text-center"
+          style={{ background: "linear-gradient( to right, #07080D, #050B0B)" }}
+        >
           <div className="flex justify-center items-center w-full">
             <RecordMessage onStop={handleStopRecording} />
           </div>
@@ -123,3 +116,7 @@ function Controller() {
 }
 
 export default Controller;
+
+// #07080D
+// #07080D
+// #050B0B
