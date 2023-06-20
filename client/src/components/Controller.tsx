@@ -31,23 +31,18 @@ function Controller() {
 
       const response = await fetch(blobUrl);
       const blob = await response.blob();
-      console.log("send blob to backend", blob);
 
       const formData = new FormData();
       formData.append("file", blob, "myFile.wav");
-
-      console.log("posting data...", formData);
 
       const res = await axios.post(`${BASE_URL}/post-audio`, formData, {
         headers: { "Content-Type": "audio/mpeg" },
         responseType: "arraybuffer",
       });
 
-      console.log("audio posted successfully", res);
       const audioBlob = res.data;
 
       const audioUrl = handleCreateBlobUrl(audioBlob);
-      console.log("audio", audioUrl);
 
       const botMessage = { sender: BOT_NAME, blobUrl: audioUrl };
       const updatedWithBotMessage = [...updatedMessages, botMessage];
@@ -58,15 +53,16 @@ function Controller() {
       const audio = new Audio();
       audio.src = audioUrl;
       audio.play();
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
+      alert(error.message);
       setIsLoadingState(false);
       // Handle error (e.g., display error message to the user)
     }
   };
 
   return (
-    <div className="h-screen overflow-y-hidden w-full max-w-lg border-green-500 border">
+    <div className="h-full overflow-y-hidden w-full max-w-lg ">
       <Header setMessages={setMessagesState} />
       <div className="flex flex-col justify-between h-full overflow-y-auto pb-96">
         <div className="mt-5 px-5">
@@ -95,18 +91,21 @@ function Controller() {
           ))}
 
           {messagesState.length === 0 && !isLoadingState && (
-            <div className="text-center font-light italic mt-10">
+            <div className="text-center text-white font-light italic mt-10">
               Send {BOT_NAME} a message...
             </div>
           )}
           {isLoadingState && (
-            <div className="text-center font-light italic mt-10 animate-pulse">
+            <div className="text-center text-white font-light italic mt-10 animate-pulse">
               Gimme a few seconds...
             </div>
           )}
         </div>
         {/* Recorder */}
-        <div className="fixed bottom-0 w-full max-w-lg py-6 border-t text-center bg-gradient-to-r from-sky-500 to-green-500">
+        <div
+          className="fixed z-10 bottom-0 w-full max-w-lg py-6 text-center"
+          style={{ background: "linear-gradient( to right, #07080D, #050B0B)" }}
+        >
           <div className="flex justify-center items-center w-full">
             <RecordMessage onStop={handleStopRecording} />
           </div>
@@ -117,3 +116,7 @@ function Controller() {
 }
 
 export default Controller;
+
+// #07080D
+// #07080D
+// #050B0B

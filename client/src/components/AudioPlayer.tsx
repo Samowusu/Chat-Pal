@@ -86,7 +86,7 @@ function AudioPlayer({ file }: { file: string }) {
     : formatTime(duration);
 
   return (
-    <div className="flex w-300 items-center h-auto py-1 pl-2 rounded-3xl bg-blue-600">
+    <div className="flex w-200 items-center h-auto py-1 pl-2 rounded-3xl bg-blue-600">
       <button onClick={playAudio}>
         {isPlayingState ? <PauseIcon /> : <PlayIcon />}
       </button>
