@@ -7,6 +7,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from decouple import config
 import openai
+import os
 
 # Custom Function imports
 from functions.openai_requests import convert_audio_to_text, get_chat_response
@@ -17,6 +18,8 @@ from functions.text_to_speech import convert_text_to_speech
 # Initiate App
 app = FastAPI()
 
+# directory to store uploaded audio files
+upload_dir = "./uploads"
 
 # CORS - Origins
 origins = ["http://localhost:5173", "http://localhost:5174",
@@ -44,17 +47,20 @@ async def root():
 # Get audio
 @app.post('/post-audio')
 async def post_audio(file: UploadFile = File(...)):
+    # construct the file path
+    file_path = os.path.join(upload_dir, file.filename)
 
     # Open saved audio
     # audio_input = open('voice.mp3', 'rb')
 
     # Save file from Frontend
-    with open(file.filename, "wb") as buffer:
+    with open(file_path, "wb") as buffer:
         buffer.write(file.file.read())
-    audio_input = open(file.filename, "rb")
 
-    # Decode audio
-    message_decoded = convert_audio_to_text(audio_input)
+    # open the saved file for decoding
+    with open(file_path, "rb") as audio_input:
+        # Decode audio
+        message_decoded = convert_audio_to_text(audio_input)
 
     # Guard: Ensure message decoded
     if not message_decoded:
