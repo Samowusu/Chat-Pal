@@ -9,7 +9,7 @@ ELEVEN_LABS_API_KEY = config("ELEVEN_LABS_API_KEY")
 
 
 def convert_text_to_speech(message):
-
+    print('converting text to speech...')
     # Define Data (Body)
     body = {
         "text": message,
@@ -35,8 +35,12 @@ def convert_text_to_speech(message):
         print(e)
         return
 
+    print('response code', response.status_code)
     # handle response
     if response.status_code == 200:
+        print('full response', response)
+        print('sent to the frontend', response.content)
         return response.content
     else:
+        print('something went wrong')
         return

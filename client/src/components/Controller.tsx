@@ -84,8 +84,12 @@ function Controller() {
                 >
                   {audio.sender}
                 </p>
-
-                <AudioPlayer file={audio.blobUrl} />
+                <audio
+                  src={audio.blobUrl}
+                  className="appearance-none"
+                  controls
+                />
+                {/* <AudioPlayer file={audio.blobUrl} /> */}
               </div>
             </div>
           ))}

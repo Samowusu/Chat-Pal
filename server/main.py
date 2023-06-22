@@ -7,6 +7,7 @@ from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from decouple import config
 import openai
+import os
 
 # Custom Function imports
 from functions.openai_requests import convert_audio_to_text, get_chat_response
@@ -17,6 +18,10 @@ from functions.text_to_speech import convert_text_to_speech
 # Initiate App
 app = FastAPI()
 
+# set the directory path
+dir_path = 'myFile.wav'
+if not os.access(dir_path, os.W_OK):
+    print(f"Write permission denied for directory: {dir_path}")
 
 # CORS - Origins
 origins = ["http://localhost:5173", "http://localhost:5174",
@@ -67,12 +72,14 @@ async def post_audio(file: UploadFile = File(...)):
     if not chat_response:
         return HTTPException(status_code=400, detail="Failed to get chat response")
 
+    print('let us store the message')
     # Save convo to database
     store_messages(message_decoded, chat_response)
 
     # convert chat response to audio
+    print('getting audio')
     audio_output = convert_text_to_speech(chat_response)
-
+    print('we have an audio', audio_output)
     if not audio_output:
         return HTTPException(status_code=400, detail="Failed to get Eleven Labs audio response")
 
